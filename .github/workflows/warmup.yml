@@ -29,6 +29,7 @@ jobs:
           fi
 
       - name: Skip non-Pacific 6:15 AM triggers
+        if: github.event_name == 'schedule'
         run: bash scripts/pacific_warmup_guard.sh
 
       - name: Install Claude Code
