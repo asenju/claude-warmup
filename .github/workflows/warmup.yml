@@ -2,7 +2,8 @@ name: Claude Code Warmup
 
 on:
   schedule:
-    - cron: '15 9 * * 1-5'
+    - cron: '15 13 * * 1-5'
+    - cron: '15 14 * * 1-5'
   workflow_dispatch: {}
 
 concurrency:
@@ -14,6 +15,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
       - name: Validate configuration
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_OAUTH_TOKEN }}
@@ -23,6 +27,9 @@ jobs:
             echo "Add it in Settings > Secrets and variables > Actions."
             exit 1
           fi
+
+      - name: Skip non-Pacific 6:15 AM triggers
+        run: bash scripts/pacific_warmup_guard.sh
 
       - name: Install Claude Code
         run: npm install -g @anthropic-ai/claude-code

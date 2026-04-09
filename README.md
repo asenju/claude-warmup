@@ -66,15 +66,18 @@ Paste when prompted.
 
 ### 4. Set your schedule
 
-Default is weekdays at 9:15 UTC.
+This workspace is configured for weekdays at 6:15 AM Pacific year-round.
 
-GitHub Actions requires `on.schedule.cron` to be a literal value in the workflow file, so changing the schedule means editing `.github/workflows/warmup.yml` and updating this line:
+GitHub Actions requires `on.schedule.cron` to be a literal value in the workflow file, and UTC offsets shift when Pacific time moves between PST and PDT. This build handles that by scheduling both matching UTC times and then skipping whichever one is not the real `06:15 America/Los_Angeles` trigger.
 
 ```yml
-- cron: '15 9 * * 1-5'
+- cron: '15 13 * * 1-5'
+- cron: '15 14 * * 1-5'
 ```
 
-That's a standard cron expression in UTC. Common conversions:
+The guard logic lives in `scripts/pacific_warmup_guard.sh`. If you want a different local time or timezone, update that script and the cron entries together.
+
+If you prefer the original single-timezone setup, a few common conversions are:
 
 Need help generating one? Try [crontab.guru](https://crontab.guru/#15_9_*_*_1-5).
 
@@ -114,6 +117,12 @@ gh run view --log --repo <your-user>/claude-warmup
 ```
 
 Check the logs. You should see a Haiku response or a rate-limit message. Both mean it worked.
+
+If you want to verify the Pacific-time guard locally before pushing:
+
+```bash
+bash tests/pacific_warmup_guard_test.sh
+```
 
 ### 6. Verify
 
