@@ -43,7 +43,7 @@ jobs:
           echo '{"hasCompletedOnboarding":true}' > ~/.claude.json
           output_file="$(mktemp)"
           set +e
-          claude -p "hi" --model haiku --no-session-persistence >"$output_file" 2>&1
+          timeout -k 10s 60s claude -p "hi" --model haiku --no-session-persistence --tools "" --output-format json >"$output_file" 2>&1
           status=$?
           set -e
           cat "$output_file"
@@ -62,6 +62,12 @@ jobs:
 
           if grep -qi "rate limit" "$output_file"; then
             echo "Claude reported a rate limit; treating as warmup success."
+            echo "✓ Warmup complete"
+            exit 0
+          fi
+
+          if [ $status -eq 124 ]; then
+            echo "Claude request timed out after 60 seconds; treating as warmup success."
             echo "✓ Warmup complete"
             exit 0
           fi

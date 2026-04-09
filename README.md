@@ -166,6 +166,9 @@ Run `claude setup-token` on a machine where you're logged into Claude Code, then
 **Unexpected Claude CLI failure**
 Check the workflow logs. The job now prints the full Claude CLI output and only treats explicit rate-limit responses as expected.
 
+**Claude CLI hangs in GitHub Actions**
+This fork caps the headless Claude request at 60 seconds and treats that timeout as a warmup success. The request has already started by that point, which is enough for this workflow's quota-window anchoring goal.
+
 ## License
 
 MIT
